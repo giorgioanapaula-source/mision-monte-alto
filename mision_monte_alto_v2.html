@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misión Monte Alto</title>
+<style>
+:root{--navy:#17324d;--navy2:#244a6a;--gold:#c9a24e;--cream:#f7f4ed;--white:#fff;--text:#1f2937;--muted:#657080;--border:#d9dee5;--ok:#2f7d5a;--bad:#a64d4d}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(180deg,#f3f5f7 0%,#f9fafb 100%);color:var(--text)}
+.wrap{max-width:760px;margin:0 auto;padding:20px}
+.hero{background:linear-gradient(135deg,var(--navy),var(--navy2));color:#fff;border-radius:22px;padding:28px;box-shadow:0 12px 30px rgba(23,50,77,.15)}
+.eyebrow{color:#f0cf82;text-transform:uppercase;letter-spacing:.16em;font-weight:700;font-size:12px}
+h1{font-size:34px;margin:8px 0 4px} h2{font-size:24px;margin:8px 0 10px} p{line-height:1.55}
+.card{background:#fff;border:1px solid var(--border);border-radius:18px;padding:20px;margin-top:16px;box-shadow:0 8px 18px rgba(0,0,0,.04)}
+.note{background:var(--cream);border-left:4px solid var(--gold);padding:14px 16px;border-radius:12px;margin-top:14px}
+input{width:100%;padding:14px 15px;border-radius:12px;border:1px solid var(--border);font-size:16px}
+button{width:100%;border:0;border-radius:12px;padding:14px 16px;font-size:16px;font-weight:700;cursor:pointer}
+.primary{background:var(--navy);color:#fff}.secondary{background:#fff;border:1px solid var(--border);color:var(--text)}
+button:disabled{opacity:.45;cursor:not-allowed}
+.meta{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.tag{display:inline-block;background:#f4ead0;color:#765c1f;border-radius:999px;padding:6px 10px;font-size:12px;font-weight:700}
+.progress{height:10px;background:#e5e7eb;border-radius:999px;overflow:hidden;margin-top:10px}.progress span{display:block;height:100%;background:var(--gold);width:0}
+.scenario{color:var(--muted);margin-top:8px}.options{display:grid;gap:10px;margin-top:16px}
+.option{text-align:left;background:#fff;border:1px solid var(--border);padding:14px 15px;border-radius:12px;font-weight:600;color:var(--text)}
+.option:hover{border-color:#b89445}.option.selected{border-color:var(--gold);box-shadow:0 0 0 2px rgba(201,162,78,.14)}
+.option.correct{border-color:var(--ok);background:#eef8f2}.option.wrong{border-color:var(--bad);background:#fbefef}
+.feedback{margin-top:16px;padding:15px;border-radius:12px;border:1px solid var(--border);background:#fafafa}
+.feedback strong.ok{color:var(--ok)}.feedback strong.bad{color:var(--bad)}
+.hidden{display:none!important}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.score{font-size:52px;font-weight:800;color:#fff;margin-top:8px}
+.dim{margin:15px 0}.dimline{display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.bar{height:9px;background:#e7e9ec;border-radius:999px;overflow:hidden;margin-top:7px}.bar span{height:100%;display:block;background:var(--gold)}
+.small{font-size:13px;color:var(--muted)}.sendstatus{margin-top:12px;font-size:14px}.source{font-size:12px;color:var(--muted);margin-top:18px}
+@media(max-width:560px){.wrap{padding:12px}.hero{padding:21px;border-radius:18px}h1{font-size:29px}h2{font-size:21px}.grid2{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<section id="start">
+  <div class="hero">
+    <div class="eyebrow">Auditoría de Recursos Humanos · Cierre integrador</div>
+    <h1>MISIÓN MONTE ALTO</h1>
+    <div style="font-size:18px;font-weight:700">Una auditoría. Muchas decisiones.</div>
+    <p>Monte Alto S.A. fabrica componentes electrónicos y cuenta con aproximadamente 1.100 colaboradores. En los últimos años perdió varios ejecutivos y la rotación del personal técnico alcanzó cerca del 40% anual. La Dirección decidió auditar la función de Recursos Humanos.</p>
+  </div>
+  <div class="card">
+    <h2>Tu misión</h2>
+    <p>Vas a tomar 10 decisiones a medida que aparezcan nuevas evidencias. No busques responder rápido: podés debatir con quienes tengas cerca.</p>
+    <div class="note"><strong>Esto no es un examen.</strong><br>Equivocarse también forma parte de la auditoría: cada respuesta desbloquea una explicación y permite seguir avanzando.</div>
+    <label for="alias" style="display:block;margin-top:18px;font-weight:700">Nombre, iniciales o alias</label>
+    <input id="alias" maxlength="60" placeholder="Ej.: Ana / AP / Auditora 7">
+    <p class="small">Este dato se usa únicamente para registrar la actividad y analizar resultados del curso.</p>
+    <button id="startBtn" class="primary" disabled>Comenzar misión</button>
+  </div>
+</section>
+
+<section id="game" class="hidden">
+  <div class="meta"><span id="missionTag" class="tag"></span><span id="counter" class="small"></span></div>
+  <div class="progress"><span id="progressBar"></span></div>
+  <div class="card">
+    <div id="questionTitle" class="eyebrow" style="color:#8a6a25"></div>
+    <h2 id="question"></h2>
+    <p id="scenario" class="scenario"></p>
+    <div id="options" class="options"></div>
+    <div id="feedback" class="feedback hidden"></div>
+    <div class="grid2" style="margin-top:16px">
+      <button id="confirmBtn" class="primary" disabled>Confirmar decisión</button>
+      <button id="nextBtn" class="secondary hidden">Siguiente misión</button>
+    </div>
+  </div>
+</section>
+
+<section id="result" class="hidden">
+  <div class="hero">
+    <div class="eyebrow">Misión completada</div>
+    <h1>Índice de Criterio Auditor</h1>
+    <div id="totalScore" class="score">0</div>
+    <div id="resultLabel" style="font-size:18px;font-weight:700"></div>
+  </div>
+  <div class="card"><h2>Tu perfil de auditoría</h2><div id="dimensions"></div></div>
+  <div class="card">
+    <h2>Lectura final</h2>
+    <p id="finalMessage"></p>
+    <div id="sendStatus" class="sendstatus"></div>
+    <button id="restartBtn" class="secondary" style="margin-top:16px">Volver a jugar</button>
+    <p class="source">Caso base adaptado didácticamente a partir de Monte Alto, S.A., presentado por Idalberto Chiavenato. Los datos adicionales del recorrido fueron creados para integrar los contenidos de la cátedra.</p>
+  </div>
+</section>
+</div>
+
+<script>
+const ENDPOINT = "https://script.google.com/macros/s/AKfycbwaxWjU7NEdoJAkNeSgtnC0MCI9qmgXthcFdC31s3ObRBWNgX8CAwdne0PWHrddzSQanA/exec";
+
+const missions = [
+{title:"MISIÓN 1 · Antes de auditar",question:"Como auditor, ¿cuál sería tu mejor primera decisión?",scenario:"La Dirección sostiene: “Tenemos una rotación técnica del 40%. Evidentemente el problema son los salarios.”",options:["Recomendar una revisión salarial para reducir la rotación técnica.","Verificar la brecha y comprender el problema antes de definir causas.","Concluir que RRHH no está respondiendo a las necesidades del negocio.","Aplicar una encuesta general para identificar el clima organizacional."],correct:1,feedback:"El 40% es una señal de alerta, pero todavía necesitamos criterios, contexto y evidencia. Una auditoría no debería comenzar suponiendo la causa ni recomendando una solución.",dimension:"alcance"},
+{title:"MISIÓN 2 · Delimitá tu trabajo",question:"¿Cuál sería el alcance más claro para comenzar la auditoría?",scenario:"Monte Alto tiene 1.100 personas. La mayor rotación aparece en el personal técnico de Ingeniería y Tecnología.",options:["Auditar todos los procesos de Recursos Humanos durante el último año.","Evaluar el funcionamiento general de Recursos Humanos en toda la empresa.","Auditar incorporación, permanencia y desvinculación del personal técnico de esas áreas durante los últimos 12 meses.","Entrevistar a los gerentes de las áreas con mayor rotación técnica."],correct:2,feedback:"Un alcance debe establecer límites concretos. La opción más sólida identifica población, procesos y período. Entrevistar personas puede ser un procedimiento, pero no define por sí mismo el alcance.",dimension:"alcance"},
+{title:"MISIÓN 3 · ¿Contra qué comparás?",question:"¿Qué aporta esta nueva información?",scenario:"Monte Alto registra una rotación técnica anual del 40%. Empresas comparables del sector muestran aproximadamente 20%.",options:["Permite atribuir directamente la rotación al desempeño de RRHH.","Aporta una referencia que permite interpretar la magnitud del indicador.","Permite concluir que la remuneración está por debajo del mercado.","Aporta una solución suficiente para reducir la rotación técnica."],correct:1,feedback:"Un indicador aislado describe una situación. Al compararlo con un estándar, referencia o benchmark podemos evaluar si existe una brecha que merece ser investigada.",dimension:"control"},
+{title:"MISIÓN 4 · Las fuentes no coinciden",question:"¿Qué harías antes de formular un hallazgo?",scenario:"Sistema de RRHH: 286 personas técnicas activas. Nómina: 291. Sistema de accesos: 294.",options:["Tomar el dato del sistema de RRHH por ser la fuente del área auditada.","Promediar los tres registros para obtener una cifra única de referencia.","Revisar responsable, fecha, finalidad y reglas de actualización de cada fuente.","Informar un hallazgo por inconsistencia entre los tres sistemas consultados."],correct:2,feedback:"La diferencia entre datos es una señal para investigar, no un hallazgo automático. Primero hay que comprender cómo se genera, actualiza y utiliza cada fuente.",dimension:"control"},
+{title:"MISIÓN 5 · Elegí cómo investigar",question:"¿Qué estrategia produciría evidencia más sólida?",scenario:"La Dirección sostiene que las personas técnicas se van principalmente porque ganan poco. Algunos gerentes mencionan también liderazgo y desarrollo.",options:["Entrevistar al gerente de RRHH y contrastar su explicación con la Dirección.","Revisar remuneraciones y compararlas con los niveles salariales del sector.","Combinar rotación, entrevistas de salida, remuneraciones y entrevistas a distintos actores.","Consultar informalmente a trabajadores y gerentes sobre las causas más frecuentes."],correct:2,feedback:"La triangulación permite contrastar distintas fuentes y técnicas. Una sola evidencia difícilmente permitiría explicar un fenómeno complejo como la rotación.",dimension:"evidencia"},
+{title:"MISIÓN 6 · Evidencia desbloqueada",question:"¿Cuál es la interpretación más prudente?",scenario:"Entrevistas de salida: 38% remuneración, 27% falta de desarrollo, 18% liderazgo y 17% otros motivos. Además, no existe una entrevista estandarizada y cada gerente registra las bajas de manera diferente.",options:["La remuneración aparece como la causa principal y suficiente de la rotación.","El liderazgo aparece como la causa principal y suficiente de la rotación.","Hay varios factores asociados y el registro actual limita un análisis consistente.","Las entrevistas de salida resultan insuficientes y deberían descartarse como fuente."],correct:2,feedback:"La evidencia disponible no permite atribuir el fenómeno a una única causa. Además, la falta de un procedimiento homogéneo limita la calidad de la información.",dimension:"evidencia"},
+{title:"MISIÓN 7 · Construí el hallazgo",question:"¿Cuál es el hallazgo mejor formulado?",scenario:"Criterio: las causas de desvinculación deben registrarse mediante entrevista de salida y consolidarse trimestralmente. Evidencia: en 30 bajas técnicas, 18 entrevistas completas, 7 parciales y 5 sin registro.",options:["La gestión de desvinculaciones presenta deficiencias en el área de Recursos Humanos.","En 12 de 30 bajas técnicas la entrevista está incompleta o ausente respecto del procedimiento vigente.","La organización debería implementar una herramienta digital para registrar cada desvinculación.","Los gerentes muestran bajo compromiso con el proceso de entrevistas de salida."],correct:1,feedback:"El hallazgo compara una condición verificada con un criterio. Las otras alternativas contienen opiniones, causas no demostradas o recomendaciones prematuras.",dimension:"hallazgos"},
+{title:"MISIÓN 8 · No adivines la causa",question:"¿Cuál sería la causa mejor sustentada?",scenario:"Al profundizar encontrás que no existe responsable formal del seguimiento, cada área guarda las entrevistas de manera diferente y no hay alertas ni control periódico de documentación faltante.",options:["Los líderes no priorizan adecuadamente la gestión de las personas.","La cultura organizacional dificulta una gestión ordenada de las desvinculaciones.","Faltan seguimiento formal, responsables definidos y criterios homogéneos de registro.","Los colaboradores evitan participar en las entrevistas de salida cuando renuncian."],correct:2,feedback:"Una causa debe surgir de evidencia. No corresponde atribuir intenciones, valores o comportamientos sin haberlos demostrado.",dimension:"hallazgos"},
+{title:"MISIÓN 9 · Cerrá el razonamiento",question:"¿Cuál de estas frases funciona mejor como conclusión de auditoría?",scenario:"Ya tenés distintos hallazgos vinculados con rotación, información y seguimiento de desvinculaciones.",options:["Implementar un sistema único para registrar y seguir todas las desvinculaciones.","El proceso presenta debilidades para generar y usar información confiable sobre la rotación técnica.","Doce de treinta entrevistas de salida están incompletas o no fueron registradas.","Crear un tablero mensual para monitorear causas e indicadores de rotación."],correct:1,feedback:"La conclusión integra los hallazgos y responde al objetivo de auditoría. Dos opciones proponen acciones y otra describe una condición específica.",dimension:"hallazgos"},
+{title:"MISIÓN 10 · Mirá más allá de RRHH",question:"¿Cuál sería la mejor respuesta a la Dirección?",scenario:"Seis meses después, Monte Alto organiza información sobre dotación, rotación, capacitación, accidentabilidad, condiciones de trabajo, tercerizaciones y remuneraciones. La Dirección afirma: “Si publicamos todos estos indicadores, entonces somos una empresa socialmente responsable.”",options:["Sí. Publicar indicadores sociales demuestra por sí mismo una gestión responsable.","No. Informar impactos es importante, pero la RSE depende de cómo se gestionan esos impactos.","No. El Balance Social se limita principalmente a información económica y financiera.","Sí. Con más de 300 trabajadores, la publicación acredita responsabilidad social."],correct:1,feedback:"Informar y rendir cuentas es importante, pero no sustituye una gestión responsable. El Balance Social es un instrumento; la RSE se expresa en decisiones y prácticas organizacionales.",dimension:"vision"}
+];
+
+let idx=0, selected=null, alias="", answers=[], submitted=false;
+const start=document.getElementById("start"), game=document.getElementById("game"), result=document.getElementById("result");
+const aliasInput=document.getElementById("alias"), startBtn=document.getElementById("startBtn");
+const confirmBtn=document.getElementById("confirmBtn"), nextBtn=document.getElementById("nextBtn");
+
+aliasInput.addEventListener("input",()=>startBtn.disabled=aliasInput.value.trim().length===0);
+startBtn.addEventListener("click",()=>{alias=aliasInput.value.trim();start.classList.add("hidden");game.classList.remove("hidden");renderMission();});
+
+function renderMission(){
+  const m=missions[idx]; selected=null;
+  document.getElementById("missionTag").textContent=m.title.split(" · ")[0];
+  document.getElementById("counter").textContent=`Decisión ${idx+1} de ${missions.length}`;
+  document.getElementById("progressBar").style.width=`${(idx/missions.length)*100}%`;
+  document.getElementById("questionTitle").textContent=m.title;
+  document.getElementById("question").textContent=m.question;
+  document.getElementById("scenario").textContent=m.scenario;
+  const options=document.getElementById("options"); options.innerHTML="";
+  m.options.forEach((txt,i)=>{
+    const b=document.createElement("button"); b.className="option"; b.type="button";
+    b.textContent=`${String.fromCharCode(65+i)}. ${txt}`;
+    b.addEventListener("click",()=>{
+      if(document.getElementById("feedback").classList.contains("hidden")){
+        selected=i; [...options.children].forEach(x=>x.classList.remove("selected")); b.classList.add("selected"); confirmBtn.disabled=false;
+      }
+    });
+    options.appendChild(b);
+  });
+  document.getElementById("feedback").classList.add("hidden");
+  confirmBtn.classList.remove("hidden"); confirmBtn.disabled=true; nextBtn.classList.add("hidden");
+}
+
+confirmBtn.addEventListener("click",()=>{
+  if(selected===null)return;
+  const m=missions[idx], correct=selected===m.correct;
+  answers[idx]={answer:String.fromCharCode(65+selected),correct,dimension:m.dimension};
+  const buttons=[...document.getElementById("options").children];
+  buttons.forEach((b,i)=>{if(i===m.correct)b.classList.add("correct"); if(i===selected&&i!==m.correct)b.classList.add("wrong");});
+  const fb=document.getElementById("feedback"); fb.classList.remove("hidden");
+  fb.innerHTML=`<strong class="${correct?'ok':'bad'}">${correct?'Buena decisión':'Esta decisión puede mejorarse'}</strong><br><span>${m.feedback}</span>`;
+  confirmBtn.classList.add("hidden"); nextBtn.classList.remove("hidden");
+  nextBtn.textContent=idx===missions.length-1?"Ver resultado final":"Siguiente misión";
+});
+
+nextBtn.addEventListener("click",()=>{if(idx<missions.length-1){idx++;renderMission();}else{showResult();}});
+
+function pctFor(dim){
+  const subset=answers.filter(a=>a.dimension===dim);
+  return subset.length?Math.round(subset.filter(a=>a.correct).length/subset.length*100):0;
+}
+
+function showResult(){
+  game.classList.add("hidden"); result.classList.remove("hidden");
+  const scores={
+    alcance_planificacion:pctFor("alcance"),
+    control_indicadores:pctFor("control"),
+    evidencia:pctFor("evidencia"),
+    hallazgos_decisiones:pctFor("hallazgos"),
+    vision_integral:pctFor("vision")
+  };
+  const total=Math.round((scores.alcance_planificacion+scores.control_indicadores+scores.evidencia+scores.hallazgos_decisiones+scores.vision_integral)/5);
+  document.getElementById("totalScore").textContent=`${total}/100`;
+  let label,msg;
+  if(total>=90){label="Auditoría defendible";msg="Tus decisiones muestran una integración muy sólida entre alcance, control, evidencia, hallazgos y visión integral. El informe está en condiciones de ser defendido ante Dirección.";}
+  else if(total>=70){label="Auditoría consistente";msg="Construiste una auditoría con buen sustento. Algunas decisiones todavía podrían fortalecerse con mayor precisión o evidencia.";}
+  else{label="Reabrir papeles de trabajo";msg="Hay buenas intuiciones, pero algunas conclusiones todavía necesitan mayor sustento. Revisar el recorrido permite identificar dónde reforzar el criterio auditor.";}
+  document.getElementById("resultLabel").textContent=label; document.getElementById("finalMessage").textContent=msg;
+
+  const dims=[["Alcance y planificación",scores.alcance_planificacion],["Control e indicadores",scores.control_indicadores],["Evidencia",scores.evidencia],["Hallazgos y decisiones",scores.hallazgos_decisiones],["Visión integral",scores.vision_integral]];
+  const box=document.getElementById("dimensions"); box.innerHTML="";
+  dims.forEach(([name,val])=>{const d=document.createElement("div");d.className="dim";d.innerHTML=`<div class="dimline"><span>${name}</span><span>${val}%</span></div><div class="bar"><span style="width:${val}%"></span></div>`;box.appendChild(d);});
+
+  const payload={
+    nombre_alias:alias,
+    m1_respuesta:answers[0]?.answer||"",m1_correcta:answers[0]?.correct??"",
+    m2_respuesta:answers[1]?.answer||"",m2_correcta:answers[1]?.correct??"",
+    m3_respuesta:answers[2]?.answer||"",m3_correcta:answers[2]?.correct??"",
+    m4_respuesta:answers[3]?.answer||"",m4_correcta:answers[3]?.correct??"",
+    m5_respuesta:answers[4]?.answer||"",m5_correcta:answers[4]?.correct??"",
+    m6_respuesta:answers[5]?.answer||"",m6_correcta:answers[5]?.correct??"",
+    m7_respuesta:answers[6]?.answer||"",m7_correcta:answers[6]?.correct??"",
+    m8_respuesta:answers[7]?.answer||"",m8_correcta:answers[7]?.correct??"",
+    m9_respuesta:answers[8]?.answer||"",m9_correcta:answers[8]?.correct??"",
+    m10_respuesta:answers[9]?.answer||"",m10_correcta:answers[9]?.correct??"",
+    alcance_planificacion:scores.alcance_planificacion,
+    control_indicadores:scores.control_indicadores,
+    evidencia:scores.evidencia,
+    hallazgos_decisiones:scores.hallazgos_decisiones,
+    vision_integral:scores.vision_integral,
+    puntaje_total:total
+  };
+  submitResults(payload);
+}
+
+async function submitResults(payload){
+  if(submitted)return;
+  const status=document.getElementById("sendStatus");
+  status.textContent="Guardando tu recorrido...";
+  try{
+    await fetch(ENDPOINT,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain;charset=utf-8"},body:JSON.stringify(payload)});
+    submitted=true; status.textContent="✓ Tu recorrido fue enviado para el análisis de la cátedra."; status.style.color="#2f7d5a";
+  }catch(e){
+    status.textContent="No se pudo confirmar el envío. Avisale a la docente antes de cerrar esta pantalla."; status.style.color="#a64d4d";
+  }
+}
+
+document.getElementById("restartBtn").addEventListener("click",()=>{
+  idx=0;selected=null;answers=[];submitted=false;result.classList.add("hidden");start.classList.remove("hidden");aliasInput.value="";startBtn.disabled=true;
+});
+</script>
+</body>
+</html>
